@@ -1903,6 +1903,128 @@
 }
 .gallery-modal-prev { left: 32px; }
 .gallery-modal-next { right: 32px; }
+
+
+/* CTA mobile dentro del menú (oculta por defecto) */
+.nav-cta-mobile {
+  display: none;
+}
+
+.btn-nav-mobile {
+  width: 100%;
+  justify-content: center;
+}
+
+/* Botón hamburguesa */
+.burger-btn {
+  display: none; /* se muestra solo en móvil */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 38px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  padding: 0;
+  margin-left: 8px;
+  cursor: pointer;
+  gap: 4px;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+}
+
+.burger-btn span {
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: #4b5563;
+  transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+}
+
+.burger-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  transform: translateY(-1px);
+}
+
+/* Animación a "X" cuando está abierto */
+.burger-btn.open span:nth-child(1) {
+  transform: translateY(4px) rotate(45deg);
+}
+
+.burger-btn.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.burger-btn.open span:nth-child(3) {
+  transform: translateY(-4px) rotate(-45deg);
+}
+
+/* Modo oscuro para el burger */
+body.dark .burger-btn {
+  background: #111827;
+  border-color: #374151;
+}
+
+body.dark .burger-btn span {
+  background: #e5e7eb;
+}
+
+@media (max-width: 768px) {
+  .header-inner {
+    padding: 10px 16px;
+    gap: 10px;
+  }
+
+  /* Esconder menú horizontal y mostrar como desplegable */
+  .header-nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e5e5e5;
+    display: none;
+  }
+
+  .header-nav.open {
+    display: block;
+  }
+
+  .header-nav ul {
+    flex-direction: column;
+    padding: 12px 16px 16px;
+    gap: 8px;
+  }
+
+  .header-nav a {
+    display: block;
+    padding: 8px 10px;
+  }
+
+  /* Botón CTA del header se esconde en móvil */
+  .header-btn {
+    display: none;
+  }
+
+  /* Mostrar CTA dentro del menú */
+  .nav-cta-mobile {
+    display: block;
+    margin-top: 4px;
+  }
+
+  /* Mostrar burger en móvil */
+  .burger-btn {
+    display: flex;
+  }
+}
+
+/* Fondo del menú en modo oscuro */
+body.dark .header-nav {
+  background: #131416;
+  border-bottom-color: #1f2937;
+}
   </style>
 </head>
 <body id="top">
@@ -1927,14 +2049,29 @@
         <!-- <li><a href="#faq">Preguntas</a></li> -->
         <li><a href="#ubicacion">Ubicaciónes</a></li>
         <li><a href="#contacto">Contacto</a></li>
+
+        <!-- CTA solo visible en móvil dentro del menú -->
+        <li class="nav-cta-mobile">
+          <a href="#contacto" class="btn-primary btn-nav-mobile">Agendar visita</a>
+        </li>
+        <li class="nav-theme-toggle">
+          <button id="themeToggle" class="theme-toggle" type="button">
+            🌙 Modo oscuro
+          </button>
+        </li>
       </ul>
     </nav>
 
-    <!-- NUEVO: botón de modo oscuro -->
-    <button id="themeToggle" class="theme-toggle" aria-label="Cambiar tema">
-      🌙
+    
+
+    <!-- Botón hamburguesa (solo se ve en móvil) -->
+    <button class="burger-btn" id="burgerBtn" aria-label="Abrir menú">
+      <span></span>
+      <span></span>
+      <span></span>
     </button>
 
+    <!-- CTA que se ve en desktop -->
     <a href="#contacto" class="header-btn">Agendar visita</a>
   </div>
 </header>
@@ -2394,6 +2531,33 @@
       if (e.key === 'ArrowRight') modal.querySelector('.gallery-modal-next').click();
     }
   });
+
+  // ===========================
+  //       MENÚ HAMBURGUESA
+  // ===========================
+  const burgerBtn = document.getElementById('burgerBtn');
+  const headerNav = document.querySelector('.header-nav');
+
+  if (burgerBtn && headerNav) {
+    burgerBtn.addEventListener('click', () => {
+      headerNav.classList.toggle('open');
+      burgerBtn.classList.toggle('open');
+    });
+
+    // Cerrar menú al hacer click en un enlace
+    headerNav.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        headerNav.classList.remove('open');
+        burgerBtn.classList.remove('open');
+      });
+    });
+
+    // Opcional: cerrar al hacer scroll
+    window.addEventListener('scroll', () => {
+      headerNav.classList.remove('open');
+      burgerBtn.classList.remove('open');
+    });
+  }
     </script>
 </body>
 </html>
