@@ -2306,8 +2306,13 @@ body.dark .header-nav {
         </p>
 
         <div class="contact-grid">
-            <form action="#" method="post">
-            <!-- Luego puedes conectar este formulario con el backend que quieras -->
+            <form id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+            <!-- Web3Forms: reenvía las consultas al correo registrado con esta clave -->
+            <input type="hidden" name="access_key" value="873053bd-33b1-4596-9149-6fbab82bd8bc">
+            <input type="hidden" name="subject" value="Nueva consulta desde la web - Residencia San Francisco">
+            <input type="hidden" name="from_name" value="Web Residencia San Francisco">
+            <!-- Anti-spam: los bots suelen marcar este campo oculto -->
+            <input type="checkbox" name="botcheck" class="hidden" style="display:none" tabindex="-1" autocomplete="off">
             <div class="form-row">
                 <label for="nombre">Nombre completo</label>
                 <input type="text" id="nombre" name="nombre" placeholder="Nombre de quien consulta" required>
@@ -2328,6 +2333,7 @@ body.dark .header-nav {
             <button type="submit" class="btn-primary">
                 Enviar mensaje
             </button>
+            <p id="form-status" role="status" aria-live="polite" style="margin-top:12px;font-weight:600;"></p>
             </form>
 
             <div class="contact-details">
@@ -2556,6 +2562,46 @@ body.dark .header-nav {
     window.addEventListener('scroll', () => {
       headerNav.classList.remove('open');
       burgerBtn.classList.remove('open');
+    });
+  }
+
+  // ===== Formulario de contacto (Web3Forms) =====
+  const contactForm = document.getElementById('contact-form');
+  if (contactForm) {
+    const statusEl = document.getElementById('form-status');
+    const submitBtn = contactForm.querySelector('button[type="submit"]');
+
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(contactForm);
+      // El correo de quien consulta queda como "responder a"
+      data.set('replyto', data.get('email') || '');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Enviando...';
+      statusEl.textContent = '';
+
+      try {
+        const res = await fetch(contactForm.action, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: data
+        });
+        const json = await res.json().catch(() => ({}));
+        if (res.ok && json.success) {
+          statusEl.style.color = 'var(--primary-green)';
+          statusEl.textContent = '¡Mensaje enviado! Nos pondremos en contacto pronto.';
+          contactForm.reset();
+        } else {
+          throw new Error(json.message || 'Error al enviar');
+        }
+      } catch (err) {
+        statusEl.style.color = '#c0392b';
+        statusEl.textContent = 'No pudimos enviar el mensaje. Por favor, intenta de nuevo o escríbenos por WhatsApp.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Enviar mensaje';
+      }
     });
   }
     </script>
